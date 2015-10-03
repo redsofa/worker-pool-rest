@@ -12,7 +12,7 @@ import (
 type CalcsHandler struct {}
 
 //ServeHTTP method is bound to the CalcsHandler struct. 
-//Implementing the Handler interface
+//Implementing the http.Handler interface
 func (handler *CalcsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "I will perform calculations for you...")
 }
