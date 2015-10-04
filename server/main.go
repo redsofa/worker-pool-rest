@@ -34,7 +34,6 @@ func (handler *CalcsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         log.Println(err)
         panic(err)
     }
-fmt.Println(body)
 
    	//The input list that the user submitted to the server
    	//The ProcessJsonInput function returns a slice of Inputs
