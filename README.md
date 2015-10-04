@@ -1,18 +1,4 @@
 # worker-pool-rest
 
-
-curl \
---verbose \
---silent \
---insecure \
---request POST \
---header "Content-Type: application/json" \
---data '
-{
-  "table": [
-  		{ "Index": 0, "NumA": 1, "NumB": 2 },
-        { "Index": 1, "NumA": 3,"NumB": 4}
-    ]
-}
-' \
-http://localhost:8080/calcs
+- Project to test rest web service written in Go. 
+- Related Blog Post : http://http://www.redsofa.ca/blog/worker-pools-rest-web-service/
