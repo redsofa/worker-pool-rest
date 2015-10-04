@@ -19,6 +19,28 @@ type Output struct{
     Result  int64
 }
 
+
+// Modeled off of :
+// - https://gobyexample.com/worker-pools
+//
+// We will run several cocurrent instances of the worker
+// - job chanel is read only for Input
+// - results chanel is write only for Output
+func NewWorker(jobs <-chan Input, results chan<- Output) {
+	for input := range jobs {
+		
+		sum := input.NumA + input.NumB
+
+		r := Output{
+			Index:      input.Index,
+			NumA:		input.NumA,
+			NumB:		input.NumB,
+			Result:		sum,
+		}
+		results <- r
+	}
+}
+
 //For more information on marshelling, see :
 //-  http://mattyjwilliams.blogspot.ca/2013/01/using-go-to-unmarshal-json-lists-with.html
 // Takes a byte slice and generates an Input slice

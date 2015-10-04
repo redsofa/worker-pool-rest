@@ -34,9 +34,10 @@ func (handler *CalcsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         log.Println(err)
         panic(err)
     }
+fmt.Println(body)
 
    	//The input list that the user submitted to the server
-   	//The ProcessJsonInput function returns a map of Input stucts
+   	//The ProcessJsonInput function returns a slice of Inputs
     inputCollection := domain.ProcessJsonInput(body)
     //Make sure the user submitted something...
     if len(inputCollection) <= 0 {
@@ -44,16 +45,42 @@ func (handler *CalcsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    //Make a map of Inputs and populated with the sumitted data
+    inputMap := make(map[int]domain.Input)
+    for k, v := range inputCollection {
+       inputMap [k] = v
+    }
+
+    //The number of jobs we have to execute is the count of elements in our input map
+    numberOfJobs := len(inputMap)
+    numberOfWorkers := 100
+
+    //Buffered chanels
+    jobs := make(chan domain.Input, 1000)    //Chanel to send in the jobs
+    results := make(chan domain.Output, 1000) //Chanel to receive job results
+
+    for w := 1; w <= numberOfWorkers; w++ {
+        go domain.NewWorker(jobs, results)
+    }
+
+    for j := 0; j <= numberOfJobs-1; j++ {
+        job := inputMap[j]
+        jobs <- job
+    }
+
+    //close the jobs chanel indicating that this is all the 
+    //work we have
+    close(jobs)
+
  	//The res map will be used to collect results of our workers...
     res := make(map[int]domain.Output)
 
-	//For now we'll just fake the process that does the concurrent calculations
-    //and return 0s for the results
-    for _, v := range inputCollection {
-       output := domain.Output{v.Index, v.NumA, v.NumB, 0}
-
-       res[v.Index] = output
+    //Collect worker results
+    for a := 0; a <= numberOfJobs-1; a++ {
+        r := <-results
+        res [r.Index] = r
     }
+    close(results)
 
     //Set response header information
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
